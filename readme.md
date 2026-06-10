@@ -2,7 +2,7 @@
 
 Blazingly fast static hash maps for fixed sets of integer keys.
 
-Given a list of unsigned 64-bit integers, it searches for a `magic` multiplier and
+Given a list of 64-bit integers, it searches for a `magic` multiplier and
 `shift` such that every key maps to a unique `index` in a flat table: `index = (key * magic) >> shift`.
 
 ## build
@@ -19,7 +19,9 @@ By default indexing is multiply-and-shift with `index = (key * magic) >> shift`.
 Use `./magicmap --mod` flag to switch to modulus backend, i.e. `index = key % magic`.
 
 ## input format
-Provide one unsigned 64-bit integer per line to stdin. Blank lines are ignored. It will error if passed keys are not distinct.
+Provide one 64-bit integer per line to stdin. Negative integers are casted to their unsigned representation assuming two's complement.
+
+Blank lines are ignored. Errors if passed keys are not distinct.
 
 `keys.txt`:
 ```

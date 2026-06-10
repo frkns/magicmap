@@ -1,6 +1,18 @@
 use std::collections::HashSet;
 use std::io::{self, Read};
 
+fn parse_key(s: &str) -> Result<u64, String> {
+    if let Ok(x) = s.parse::<u64>() {
+        return Ok(x);
+    }
+
+    let x = s
+        .parse::<i64>()
+        .map_err(|e| format!("invalid u64 or i64 integer: {e}"))?;
+
+    Ok(x as u64)
+}
+
 pub fn read_keys() -> Result<Vec<u64>, String> {
     let mut input = String::new();
 
@@ -19,9 +31,7 @@ pub fn read_keys() -> Result<Vec<u64>, String> {
 
         let line_no = i + 1;
 
-        let key = line
-            .parse::<u64>()
-            .map_err(|e| format!("line {line_no}, {line}: {e}"))?;
+        let key = parse_key(line)?;
 
         if !seen.insert(key) {
             return Err(format!("line {line_no}, {line}: duplicate key"));

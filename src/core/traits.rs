@@ -3,10 +3,18 @@ pub trait Magic {
     fn max_size(&self) -> usize;
 
     // assumes distinct keys
-    fn size_if_valid(&self, keys: &[u64]) -> Option<usize> {
+
+    fn size_if_valid<const LESS_THAN: usize>(
+        &self,
+        keys: &[u64],
+        scratch_buf: &mut [usize],
+        epoch: &mut usize,
+    ) -> Option<usize> {
+
         assert!(keys.len() <= self.max_size());
 
         let mut used = vec![false; self.max_size()];
+        let mut max_index = 0;
 
         for &key in keys {
             let index = self.hash(key);
@@ -14,15 +22,10 @@ pub trait Magic {
             if used[index] {
                 return None;
             }
+            max_index = max_index.max(index);
             used[index] = true;
         }
 
-        for i in (0..self.max_size()).rev() {
-            if used[i] {
-                return Some(i + 1);
-            }
-        }
-
-        Some(0)
+        Some(max_index)
     }
 }
