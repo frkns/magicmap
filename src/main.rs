@@ -1,9 +1,9 @@
 #![allow(unused)]
-mod input;
-mod rng;
+mod core;
+mod search;
 
 fn main() -> Result<(), String> {
-    let keys: Vec<u64> = input::read_keys()?;
+    let keys: Vec<u64> = core::input::read_keys()?;
     dbg!(keys);
 
     Ok(())

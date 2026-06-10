@@ -9,10 +9,14 @@ Given a list of unsigned 64-bit integers, it searches for a `magic` multiplier a
 With `make`. (Requires Rust.) It will produce `./magicmap` at root.
 
 ## usage
-Pass keys to stdin. 
+Pass your integer keys to stdin. 
 ```sh
 ./magicmap < keys.txt
 ```
+
+By default indexing is multiply-and-shift with `index = (key * magic) >> shift`.
+
+Use `./magicmap --mod` flag to switch to modulus backend, i.e. `index = key % magic`.
 
 ## input format
 Provide one unsigned 64-bit integer per line to stdin. Blank lines are ignored. It will error if passed keys are not distinct.
