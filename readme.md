@@ -9,13 +9,13 @@ Given a list of unsigned 64-bit integers, it searches for a `magic` multiplier a
 With `make`. (Requires Rust.) It will produce `./magicmap` at root.
 
 ## usage
-Pass keys to stdin.
+Pass keys to stdin. 
 ```sh
 ./magicmap < keys.txt
 ```
 
 ## input format
-Provide one unsigned 64-bit integer per line to stdin. Blank lines are ignored.
+Provide one unsigned 64-bit integer per line to stdin. Blank lines are ignored. It will error if passed keys are not distinct.
 
 `keys.txt`:
 ```
