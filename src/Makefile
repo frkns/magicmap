@@ -1,2 +1,4 @@
+# dev
+
 all:
-	cargo run < in
+	echo "mulshift" && cargo run < in && echo "\n\nmodulus" && cargo run -- --mod < in

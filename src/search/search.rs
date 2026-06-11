@@ -4,8 +4,7 @@ use core::modulus::Modulus;
 use core::mul_shift::MulShift;
 use core::rng;
 use core::traits::Magic;
-
-const MAX_BITS: usize = 22;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 fn ceil_log2(x: usize) -> usize {
     usize::BITS as usize - (x - 1).leading_zeros() as usize
@@ -14,23 +13,31 @@ fn ceil_log2(x: usize) -> usize {
 pub fn run() -> Result<(), String> {
     let keys: Vec<u64> = core::input::read_keys()?;
     let n = keys.len();
-    assert!(
-        n <= (1usize << MAX_BITS),
-        "number of keys exceeds hardcoded limit of 2^{MAX_BITS}"
+
+    let approx_start_size = n.max(
+        n.checked_mul(n)
+            .ok_or_else(|| format!("length {n}^2 overflows usize"))?
+            / 10,
     );
+
+    let min_bits = ceil_log2(n);
+    let max_bits = ceil_log2(approx_start_size);
+
     println!("number of keys: {}", n);
 
-    // let mut
-    let min_bits = ceil_log2(n);
-
-    let mut rng = rng::SplitMix64::new(0u64);
-    let mut scratch_buf = vec![0usize; 1usize << MAX_BITS];
+    let mut rng = rng::SplitMix64::new(
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("time went backwards")
+            .as_nanos() as u64,
+    );
+    let mut scratch_buf = vec![0usize; 1usize << max_bits];
     let mut epoch = 1usize;
 
-    let mut best_size = 1usize << MAX_BITS;
+    let mut best_size = usize::MAX;
     let mut best_cand = Option::<MulShift>::None;
 
-    for bits in (min_bits..MAX_BITS).rev() {
+    for bits in (min_bits..=max_bits).rev() {
         let last_level = bits == min_bits;
         let level_size = 1usize << bits;
 
@@ -53,12 +60,12 @@ pub fn run() -> Result<(), String> {
                 let perfect = size == n;
 
                 println!(
-                    "| {}found:   size={size}   `index = (key * {}) >> {}`{}{}",
-                    color::GREEN,
+                    "| found:   {}size={size}   `index = (key * {:#018x}) >> {}`{}    searched {}",
+                    if perfect { color::CYAN } else { color::GREEN },
                     cand.mul(),
                     cand.shift(),
                     color::RESET,
-                    if perfect { "    perfect!" } else { "" },
+                    epoch - 1,
                 );
 
                 best_cand = Some(cand);
@@ -67,7 +74,12 @@ pub fn run() -> Result<(), String> {
                     break;
                 }
                 if perfect {
-                    println!("* Found a perfect hash! Stopping now.");
+                    println!("|          {}^^^^{}", color::CYAN, color::RESET);
+                    println!(
+                        "*          {}perfect hash found.{}",
+                        color::CYAN,
+                        color::RESET
+                    );
                     break;
                 }
             }

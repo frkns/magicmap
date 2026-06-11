@@ -6,7 +6,16 @@ Given a list of 64-bit integers, it searches for a `magic` multiplier and
 `shift` such that every key maps to a unique `index` in a flat table: `index = (key * magic) >> shift`.
 
 ## build
-With `make`. (Requires Rust.) It will produce `./magicmap` at root.
+
+Run the build script. It installs Rust automatically if you don't have it, then
+produces `./magicmap` at the repo root:
+```sh
+./build.sh
+```
+
+(Windows: run it under Git Bash or WSL.)
+
+Alternatively, use `cargo run --release` to run directly.
 
 ## usage
 Pass your integer keys to stdin. 
