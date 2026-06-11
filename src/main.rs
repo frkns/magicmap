@@ -1,10 +1,9 @@
 #![allow(unused)]
 mod core;
 mod search;
+use core::color;
 
 fn main() -> Result<(), String> {
-    let keys: Vec<u64> = core::input::read_keys()?;
-    dbg!(keys);
-
+    search::run()?;
     Ok(())
 }

@@ -1,3 +1,4 @@
+pub mod color;
 pub mod input;
 pub mod modulus;
 pub mod mul_shift;

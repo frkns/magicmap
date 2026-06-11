@@ -16,6 +16,13 @@ impl MulShift {
             max_size: 1 << bits,
         }
     }
+
+    pub fn mul(&self) -> u64 {
+        self.mul
+    }
+    pub fn shift(&self) -> usize {
+        self.shift
+    }
 }
 
 impl Magic for MulShift {
@@ -27,4 +34,3 @@ impl Magic for MulShift {
         self.max_size
     }
 }
-
