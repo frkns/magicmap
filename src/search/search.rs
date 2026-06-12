@@ -23,7 +23,11 @@ pub fn run() -> Result<(), String> {
     let min_bits = ceil_log2(n);
     let max_bits = ceil_log2(approx_start_size);
 
-    println!("number of keys: {}", n);
+    println!("- recieved {} keys", n);
+    println!(
+        "+ starting search on size <= {} (estimated feasible upper bound)",
+        1usize << max_bits
+    );
 
     let mut rng = rng::SplitMix64::new(
         SystemTime::now()
@@ -33,56 +37,47 @@ pub fn run() -> Result<(), String> {
     );
     let mut scratch_buf = vec![0usize; 1usize << max_bits];
     let mut epoch = 1usize;
+    let mut attempts = 0usize;
 
+    let mut best_bits = max_bits;
     let mut best_size = usize::MAX;
-    let mut best_cand = Option::<MulShift>::None;
+    let mut best_mul = 0u64;
 
-    for bits in (min_bits..=max_bits).rev() {
-        let last_level = bits == min_bits;
-        let level_size = 1usize << bits;
+    loop {
+        attempts += 1;
+        let mul = rng.next_odd();
 
-        println!(
-            "- search   size <= 2^{bits} = {level_size}{}",
-            if last_level { "    last level" } else { "" }
-        );
+        let mut bits = best_bits;
+        let mut improved = false;
 
-        loop {
-            let cand = MulShift::new(rng.next_odd(), bits);
-
-            if let Some(size) =
-                cand.size_if_valid(&keys, &mut scratch_buf, &mut epoch, Some(best_size))
-            {
-                if size >= best_size {
-                    continue;
-                }
-
-                best_size = size;
-                let perfect = size == n;
-
-                println!(
-                    "| found:   {}size={size}   `index = (key * {:#018x}) >> {}`{}    searched {}",
-                    if perfect { color::CYAN } else { color::GREEN },
-                    cand.mul(),
-                    cand.shift(),
-                    color::RESET,
-                    epoch - 1,
-                );
-
-                best_cand = Some(cand);
-
-                if !last_level {
-                    break;
-                }
-                if perfect {
-                    println!("|          {}^^^^{}", color::CYAN, color::RESET);
-                    println!(
-                        "*          {}perfect hash found.{}",
-                        color::CYAN,
-                        color::RESET
-                    );
-                    break;
-                }
+        while let Some(s) =
+            MulShift::new(mul, bits).size_if_valid(&keys, &mut scratch_buf, &mut epoch, None)
+        {
+            if s < best_size {
+                best_size = s;
+                best_bits = bits;
+                best_mul = mul;
+                improved = true;
             }
+            if bits == min_bits {
+                break;
+            }
+            bits -= 1;
+        }
+
+        if !improved {
+            continue;
+        }
+
+        let perfect = best_size == n;
+        println!(
+            "| found:   {}bits={best_bits}  size={best_size}  `(key * {best_mul:#018x}) >> {}`{}    searched {attempts}",
+            if perfect { color::CYAN } else { color::GREEN },
+            64 - best_bits,
+            color::RESET,
+        );
+        if perfect {
+            break;
         }
     }
 

@@ -1,6 +1,6 @@
 import random
 
-N = 333
+N = 14999
 
 st: set[int] = set()
 
