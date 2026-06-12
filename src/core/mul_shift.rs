@@ -1,4 +1,4 @@
-use super::traits::Magic;
+use super::magic::Magic;
 
 pub struct MulShift {
     mul: u64,

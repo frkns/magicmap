@@ -1,4 +1,4 @@
-use super::traits::Magic;
+use super::magic::Magic;
 
 #[inline]
 fn r#mod(a: u64, b: u64) -> u64 {
